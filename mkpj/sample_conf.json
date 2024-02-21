@@ -1,0 +1,15 @@
+{
+    "name": "Sample project",
+    "version": "1.0.0",
+    "description": "Sample project for testing",
+    "output": "main.out",
+    
+    "scripts": {
+        "build": "echo 'Building project...'",
+        "test": "echo 'Testing project...'",
+        "start": "echo 'Starting project...'"
+    },
+
+    "author": "John Doe",
+    "license": "GNU GPLv3"
+}
