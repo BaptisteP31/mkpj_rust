@@ -1,6 +1,8 @@
 use core::fmt;
-
+use serde::ser::{Serialize, SerializeStruct, Serializer};
 use json::object;
+use std::io::{stdout, Write};
+use std::io;
 
 pub struct Project {
     pub name: String,
@@ -10,6 +12,17 @@ pub struct Project {
     //scripts: Vec<String>,
     pub author: String,
     pub licence: String,
+}
+
+fn read_input(msg: &str) -> String {
+    print!("{}", msg);
+    stdout().flush().unwrap();
+
+    let mut buf = String::new();
+    io::stdin().read_line(&mut buf).expect("Error reading stdin");
+
+    let buf = buf.trim();
+    buf.to_string()
 }
 
 impl fmt::Debug for Project {
@@ -25,7 +38,24 @@ impl fmt::Debug for Project {
     }
 }
 
+impl Serialize for Project {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("Project", 6)?;
+        state.serialize_field("name", &self.name)?;
+        state.serialize_field("version", &self.version)?;
+        state.serialize_field("description", &self.description)?;
+        state.serialize_field("output", &self.output)?;
+        state.serialize_field("author", &self.author)?;
+        state.serialize_field("licence", &self.licence)?;
+        state.end()
+    }
+}
+
 impl Project {
+    /*
     pub fn new() -> Self {
         Project {
             name: (String::new()),
@@ -36,6 +66,7 @@ impl Project {
             licence: (String::new()),
         }
     }
+    */
 
     pub fn build_project(
         name: String,
@@ -63,11 +94,44 @@ impl Project {
             output: self.output.clone(),
         }, 4)
     }
+    
+    pub fn project_creation() -> Project {   
+    
+        let questions = [
+            "Project name: ",
+            "Project version: ",
+            "Project decription: ",
+            "Output file name: ",
+            "Author: ",
+            "Licence: ",
+        ];
+    
+        let mut responses: Vec<String> = Vec::new();
+        for question in questions {
+            responses.push(
+                read_input(question)
+            )
+        }
+    
+        if responses.len() != 6 {
+            panic!("Error: Expected 6 responses, got {}", responses.len());
+        }
+    
+        Project::build_project(
+            responses[0].clone(),
+            responses[1].clone(),
+            responses[2].clone(),
+            responses[3].clone(),
+            responses[4].clone(),
+            responses[5].clone(),
+        )
+    }
 }
 
+/* 
 pub fn from_string(content: String) -> Project {
     let content = json::parse(&content).unwrap();
-
+    
     Project {
         name: (content["name"].to_string()),
         version: (content["version"].to_string()),
@@ -78,3 +142,4 @@ pub fn from_string(content: String) -> Project {
         licence: (content["licence"].to_string()),
     }
 }
+*/
